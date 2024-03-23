@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ogrenci_app/pages/mesajlar_sayfasi.dart';
 import 'package:ogrenci_app/pages/ogrenciler_sayfasi.dart';
 import 'package:ogrenci_app/pages/ogretmenler_sayfasi.dart';
+import 'package:ogrenci_app/repository/mesajlar_repository.dart';
+import 'package:ogrenci_app/repository/ogrenciler_repository.dart';
+import 'package:ogrenci_app/repository/ogretmenler_repository.dart';
 
 void main() {
   runApp(const OgrenciApp());
@@ -12,46 +15,58 @@ class OgrenciApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Öğrenci Uygulaması',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return SafeArea(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Öğrenci Uygulaması',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const AnaSayfa(title: 'Öğrenci Ana Sayfa'),
       ),
-      home: const AnaSayfa(title: 'Öğrenci Ana Sayfa'),
     );
   }
 }
 
-class AnaSayfa extends StatelessWidget {
+class AnaSayfa extends StatefulWidget {
   const AnaSayfa({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
+  State<AnaSayfa> createState() => _AnaSayfaState();
+}
+
+class _AnaSayfaState extends State<AnaSayfa> {
+  MesajlarRepository mesajlarRepository = MesajlarRepository();
+  OgrencilerRepository ogrencilerRepository = OgrencilerRepository();
+  OgretmenlerRepository ogretmenlerRepository = OgretmenlerRepository();
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        backgroundColor: Colors.blue,
+        title: Text(widget.title),
       ),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextButton(
-              child: const Text('10 yeni mesaj'),
+              child:  Text('${mesajlarRepository.yeniMesajSayisi} yeni mesaj'),
               onPressed: () {
                 _mesajlaraGit(context);
               },
             ),
             TextButton(
-              child: const Text('10 öğrenci'),
+              child:  Text('${ogrencilerRepository.ogrenciler.length} öğrenci'),
               onPressed: () {
                 _ogrencilereGit(context);
               },
             ),
             TextButton(
-              child: const Text('10 öğretmen'),
+              child:  Text('${ogretmenlerRepository.ogretmenler.length} öğretmen'),
               onPressed: () {
                 _ogretmenlereGit(context);
               },
@@ -95,19 +110,21 @@ class AnaSayfa extends StatelessWidget {
 
   void _ogrencilereGit(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return OgrencilerSayfasi();
+      return OgrencilerSayfasi(ogrencilerRepository);
     },));
   }
 
   void _ogretmenlereGit(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return OgretmenlerSayfasi();
+      return OgretmenlerSayfasi(ogretmenlerRepository);
     },));
   }
 
-  void _mesajlaraGit(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return MesajlarSayfasi();
+  Future<void> _mesajlaraGit(BuildContext context) async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return MesajlarSayfasi(mesajlarRepository);
     },));
+    setState(() {
+    });
   }
 }
