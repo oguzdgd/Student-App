@@ -1,4 +1,7 @@
-class MesajlarRepository{
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class MesajlarRepository extends ChangeNotifier{
 
   final List<Mesaj> mesajlar = [
     Mesaj("Selam", "Ali", DateTime.now().subtract(Duration(minutes: 3))),
@@ -6,8 +9,25 @@ class MesajlarRepository{
     Mesaj("Nasılsın?", "Ali", DateTime.now().subtract(Duration(minutes: 1))),
     Mesaj("İyiyim ders çalışıyorum sen?", "Ayşe", DateTime.now())
   ];
-  int yeniMesajSayisi=4;
+
 }
+
+final mesajlarProvider= ChangeNotifierProvider((ref) {
+  return MesajlarRepository();
+},);
+
+
+class YeniMesajSayisi extends StateNotifier<int>{
+  YeniMesajSayisi(super.state);
+
+  void sifirla(){
+    state=0;
+  }
+}
+
+final yeniMesajSayisiProvider = StateNotifierProvider<YeniMesajSayisi,int>((ref) {
+  return YeniMesajSayisi(4);
+},);
 
 class Mesaj{
   String yazi;

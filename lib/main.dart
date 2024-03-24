@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ogrenci_app/pages/mesajlar_sayfasi.dart';
 import 'package:ogrenci_app/pages/ogrenciler_sayfasi.dart';
 import 'package:ogrenci_app/pages/ogretmenler_sayfasi.dart';
@@ -7,7 +8,7 @@ import 'package:ogrenci_app/repository/ogrenciler_repository.dart';
 import 'package:ogrenci_app/repository/ogretmenler_repository.dart';
 
 void main() {
-  runApp(const OgrenciApp());
+  runApp(const ProviderScope(child:OgrenciApp()));
 }
 
 class OgrenciApp extends StatelessWidget {
@@ -28,33 +29,27 @@ class OgrenciApp extends StatelessWidget {
   }
 }
 
-class AnaSayfa extends StatefulWidget {
+class AnaSayfa extends ConsumerWidget {
   const AnaSayfa({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  State<AnaSayfa> createState() => _AnaSayfaState();
-}
-
-class _AnaSayfaState extends State<AnaSayfa> {
-  MesajlarRepository mesajlarRepository = MesajlarRepository();
-  OgrencilerRepository ogrencilerRepository = OgrencilerRepository();
-  OgretmenlerRepository ogretmenlerRepository = OgretmenlerRepository();
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
+    final ogrencilerRepository = ref.watch(ogrencilerProvider);
+    final ogretmenlerRepository = ref.watch(ogretmenlerProvider);
+   
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: Text(widget.title),
+        title: Text(title),
       ),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextButton(
-              child:  Text('${mesajlarRepository.yeniMesajSayisi} yeni mesaj'),
+              child:  Text('${ref.watch(yeniMesajSayisiProvider)} yeni mesaj'),
               onPressed: () {
                 _mesajlaraGit(context);
               },
@@ -110,21 +105,20 @@ class _AnaSayfaState extends State<AnaSayfa> {
 
   void _ogrencilereGit(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return OgrencilerSayfasi(ogrencilerRepository);
+      return const OgrencilerSayfasi();
     },));
   }
 
   void _ogretmenlereGit(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return OgretmenlerSayfasi(ogretmenlerRepository);
+      return const OgretmenlerSayfasi();
     },));
   }
 
   Future<void> _mesajlaraGit(BuildContext context) async {
     await Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return MesajlarSayfasi(mesajlarRepository);
+      return const MesajlarSayfasi();
     },));
-    setState(() {
-    });
+
   }
 }

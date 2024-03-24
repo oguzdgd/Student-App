@@ -1,25 +1,25 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ogrenci_app/repository/mesajlar_repository.dart';
 
-
-class MesajlarSayfasi extends StatefulWidget {
-  final MesajlarRepository mesajlarRepository;
-  const MesajlarSayfasi(this.mesajlarRepository, {Key? key}) : super(key: key);
+class MesajlarSayfasi extends ConsumerStatefulWidget {
+  const MesajlarSayfasi({Key? key}) : super(key: key);
 
   @override
   _MesajlarSayfasiState createState() => _MesajlarSayfasiState();
 }
 
-class _MesajlarSayfasiState extends State<MesajlarSayfasi> {
+class _MesajlarSayfasiState extends ConsumerState<MesajlarSayfasi> {
   @override
   void initState() {
-    widget.mesajlarRepository.yeniMesajSayisi=0;
+    Future.delayed(Duration.zero)
+        .then((value) => ref.read(yeniMesajSayisiProvider.notifier).sifirla());
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
+  build(BuildContext context) {
+    final mesajlarRepository = ref.watch(mesajlarProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Mesajlar')),
       body: Column(
@@ -27,9 +27,10 @@ class _MesajlarSayfasiState extends State<MesajlarSayfasi> {
           Expanded(
             child: ListView.builder(
               reverse: true,
-              itemCount: widget.mesajlarRepository.mesajlar.length,
+              itemCount: mesajlarRepository.mesajlar.length,
               itemBuilder: (BuildContext context, int index) {
-                return MesajGorunumu( widget.mesajlarRepository.mesajlar[widget.mesajlarRepository.mesajlar.length - index -1]);
+                return MesajGorunumu(mesajlarRepository
+                    .mesajlar[mesajlarRepository.mesajlar.length - index - 1]);
               },
             ),
           ),
@@ -43,18 +44,15 @@ class _MesajlarSayfasiState extends State<MesajlarSayfasi> {
                   child: Padding(
                     padding: const EdgeInsets.all(8),
                     child: DecoratedBox(
-                        decoration: BoxDecoration(
+                      decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10)
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: TextField(
+                          decoration: InputDecoration(border: InputBorder.none),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              border: InputBorder.none
-                            ),
-                          ),
-                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -76,18 +74,20 @@ class _MesajlarSayfasiState extends State<MesajlarSayfasi> {
 
 class MesajGorunumu extends StatelessWidget {
   final Mesaj mesaj;
-  const MesajGorunumu( this.mesaj, {
+
+  const MesajGorunumu(
+    this.mesaj, {
     super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
+  build(BuildContext context) {
     return Align(
-      alignment:
-          mesaj.gonderen != "Ali" ? Alignment.centerLeft : Alignment.centerRight,
+      alignment: mesaj.gonderen != "Ali"
+          ? Alignment.centerLeft
+          : Alignment.centerRight,
       child: Padding(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
         child: DecoratedBox(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey, width: 2),
@@ -96,7 +96,7 @@ class MesajGorunumu extends StatelessWidget {
               Radius.circular(15),
             ),
           ),
-          child:  Padding(
+          child: Padding(
             padding: EdgeInsets.all(20.0),
             child: Text(
               mesaj.yazi,
