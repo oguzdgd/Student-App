@@ -1,11 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ogrenci_app/repository/ogrenciler_repository.dart';
 
+import '../models/ogrenci.dart';
+
 class OgrencilerSayfasi extends ConsumerWidget {
-  const OgrencilerSayfasi( {Key? key}) : super(key: key);
+  const OgrencilerSayfasi( {super.key});
 
 
   @override
@@ -23,7 +23,7 @@ class OgrencilerSayfasi extends ConsumerWidget {
             elevation: 10,
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
+                padding: const EdgeInsets.symmetric( vertical: 20),
                 child: Text("${ogrencilerRepository.ogrenciler.length} öğrenci"),
               ),
             ),
@@ -56,7 +56,7 @@ class OgrenciSatiri extends ConsumerWidget {
   Widget build(BuildContext context,WidgetRef ref) {
     bool seviyorMuyum = ref.watch(ogrencilerProvider).seviyorMuyum(ogrenci);
     return ListTile(
-      title:  Text(ogrenci.ad + " " +ogrenci.soyad),
+      title:  Text("${ogrenci.ad} ${ogrenci.soyad}"),
       leading: Text(ogrenci.cinsiyet =="Kadın" ?"👩" :"👨"),
       trailing: IconButton(
         onPressed: () {
