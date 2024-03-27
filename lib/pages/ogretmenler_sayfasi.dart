@@ -28,7 +28,7 @@ class OgretmenlerSayfasi extends ConsumerWidget {
                       vertical: 20,
                     ),
                     child: Text(
-                        "${ogretmenlerRepository.ogretmenler.length} öğrenci"),
+                        "${ogretmenlerRepository.ogretmenler.length} ogretmen"),
                   ),
                 ),
                 const Align(
@@ -39,25 +39,43 @@ class OgretmenlerSayfasi extends ConsumerWidget {
             ),
           ),
           Expanded(
-            child: ListView.separated(
-              itemBuilder: (BuildContext context, int index) => OgretmenSatiri(
-                ogretmenlerRepository.ogretmenler[index],
-              ),
-              separatorBuilder: (BuildContext context, int index) =>
-                  const Divider(),
-              itemCount: ogretmenlerRepository.ogretmenler.length,
+            child: RefreshIndicator(
+              onRefresh: () async {
+                 ref.refresh(ogretmenListesiProvider);
+              },
+              child: ref.watch(ogretmenListesiProvider).when(
+                    data: (data) => ListView.separated(
+                      itemBuilder: (context, int index) => OgretmenSatiri(
+                        data[index],
+                      ),
+                      separatorBuilder: (context, int index) => const Divider(),
+                      itemCount: data.length,
+                    ),
+                    error:(error, stackTrace) {
+                      return const SingleChildScrollView(
+                          child: Text("error "),
+                      physics: AlwaysScrollableScrollPhysics(),
+                      );
+                    },
+                    loading: () {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    },
+                  ),
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-           final created = await Navigator.of(context).push<bool>(MaterialPageRoute(
+          final created =
+              await Navigator.of(context).push<bool>(MaterialPageRoute(
             builder: (context) => const OgretmenForm(),
           ));
-           if(created == true){
-             print("Ogretmenleri yenile");
-           }
+          if (created == true) {
+            print("Ogretmenleri yenile");
+          }
         },
         child: const Icon(Icons.add),
       ),
@@ -117,7 +135,6 @@ class OgretmenSatiri extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-
       title: Text("${ogretmen.ad} ${ogretmen.soyad}"),
       leading: Text(ogretmen.cinsiyet == "Kadın" ? "👩" : "👨"),
     );
