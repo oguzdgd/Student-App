@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ogrenci_app/models/ogretmen.dart';
 import 'package:http/http.dart' as http;
@@ -18,31 +19,15 @@ class DataService {
   }
 
   Future<void> ogretmenEkle(Ogretmen ogretmen) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/ogretmen"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(ogretmen.toMap()),
-    );
-    if (response.statusCode == 201) {
-      return;
-    } else {
-      throw Exception('Ogretmen eklenemedi ${response.statusCode}');
-    }
+    await FirebaseFirestore.instance.collection('ogretmenler').add(ogretmen.toMap());
   }
 
-  int i = 0;
-  Future<List<Ogretmen>> ogretmenleriGetir() async {
-    final response = await http.get(Uri.parse("$baseUrl/ogretmen"));
 
-    i++;
-    if (response.statusCode == (i<4 ? 100 : 200)) {
-      final l = jsonDecode(response.body);
-      return l.map<Ogretmen>((e)=>Ogretmen.fromMap(e)).toList();
-    } else {
-      throw Exception('Ogretmen getirilemedi ${response.statusCode}');
-    }
+  Future<List<Ogretmen>> ogretmenleriGetir() async {
+
+    final querySnapshot = await FirebaseFirestore.instance.collection('ogretmenler').get();
+    return querySnapshot.docs.map((e) => Ogretmen.fromMap(e.data())).toList();
+
   }
 }
 
