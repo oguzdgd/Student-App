@@ -31,7 +31,21 @@ class DataService {
       throw Exception('Ogretmen eklenemedi ${response.statusCode}');
     }
   }
+
+  int i = 0;
+  Future<List<Ogretmen>> ogretmenleriGetir() async {
+    final response = await http.get(Uri.parse("$baseUrl/ogretmen"));
+
+    i++;
+    if (response.statusCode == (i<4 ? 100 : 200)) {
+      final l = jsonDecode(response.body);
+      return l.map<Ogretmen>((e)=>Ogretmen.fromMap(e)).toList();
+    } else {
+      throw Exception('Ogretmen getirilemedi ${response.statusCode}');
+    }
+  }
 }
+
 
 final dataServiceProvider = Provider(
   (ref) {
