@@ -56,13 +56,26 @@ class OgrenciSatiri extends ConsumerWidget {
   Widget build(BuildContext context,WidgetRef ref) {
     bool seviyorMuyum = ref.watch(ogrencilerProvider).seviyorMuyum(ogrenci);
     return ListTile(
-      title:  Text("${ogrenci.ad} ${ogrenci.soyad}"),
+      //implicit Animasyon örneği
+      title:  AnimatedPadding(
+          padding: seviyorMuyum ? const EdgeInsets.only(left: 60) : const EdgeInsets.only() ,
+          duration: const Duration(seconds: 1),
+        curve: Curves.bounceOut,
+          child: Text("${ogrenci.ad} ${ogrenci.soyad}"),
+      ),
       leading: Text(ogrenci.cinsiyet =="Kadın" ?"👩" :"👨"),
       trailing: IconButton(
         onPressed: () {
             ref.read(ogrencilerProvider).sev(ogrenci, !seviyorMuyum );
         },
-        icon: Icon(seviyorMuyum? Icons.favorite : Icons.favorite_border),
+          //implicit Animasyon örneği
+        icon:AnimatedCrossFade(
+          firstChild: const Icon(Icons.favorite),
+          secondChild: const Icon(Icons.favorite_border),
+          crossFadeState: seviyorMuyum ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          duration: const Duration(seconds:1),
+
+        )
       ),
 
     );

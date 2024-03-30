@@ -1,8 +1,14 @@
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ogrenci_app/pages/mesajlar_sayfasi.dart';
@@ -133,7 +139,15 @@ class AnaSayfa extends ConsumerWidget {
             ),
             TextButton(
               child:
-                  Text('${ogretmenlerRepository.ogretmenler.length} öğretmen'),
+                  Hero(
+                      tag: 'ogretmen',
+                      child: Material(
+                        child: Container(
+                          padding: const EdgeInsets.all(8.0),
+                            color: Colors.grey.shade300,
+                            child: Text('${ogretmenlerRepository.ogretmenler.length} öğretmen')),
+                      ),
+                  ),
               onPressed: () {
                 _ogretmenlereGit(context);
               },
@@ -145,31 +159,7 @@ class AnaSayfa extends ConsumerWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(FirebaseAuth.instance.currentUser!.displayName!),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      XFile? xFile = await ImagePicker().pickImage(source: ImageSource.camera);
-                      if(XFile == null) return;
-                      final imagePath = xFile!.path;
-
-                    },
-                    child: const CircleAvatar(
-                      child: Text("OD"),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const UserHeader(),
             ListTile(
               title: const Text('Öğrenciler'),
               onTap: () {
@@ -225,5 +215,144 @@ class AnaSayfa extends ConsumerWidget {
         return const MesajlarSayfasi();
       },
     ));
+  }
+}
+
+class UserHeader extends StatefulWidget {
+  const UserHeader({
+    super.key,
+  });
+
+  @override
+  State<UserHeader> createState() => _UserHeaderState();
+}
+
+class _UserHeaderState extends State<UserHeader> {
+
+
+
+  Future<Uint8List?>? _ppicFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _ppicFuture = _ppicIndir();
+  }
+  Future<Uint8List?> _ppicIndir() async {
+    var uid = FirebaseAuth.instance.currentUser!.uid;
+
+    final documentSnapshot = await FirebaseFirestore.instance.collection('kullanicilar').doc(uid).get();
+
+    final userRecMap = documentSnapshot.data();
+    if(userRecMap == null) return null;
+
+    if(userRecMap.containsKey('ppicref')){
+      var ppicRef = userRecMap['ppicref'];
+      //ppicRef='ppics/SsYfyqaT6rS1cdT12XDI7kB7aTW2.jpg';
+      Uint8List? uint8list = await FirebaseStorage.instance.ref(ppicRef).getData();
+      return uint8list;
+    }
+
+  }
+  @override
+  Widget build(BuildContext context) {
+    String fullName=FirebaseAuth.instance.currentUser!.displayName!;
+    String initials = fullName.split(" ").map((word) => word[0].toUpperCase()).join('');
+
+    return DrawerHeader(
+      decoration: const BoxDecoration(
+        color: Colors.blue,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(FirebaseAuth.instance.currentUser!.displayName!),
+          Text(FirebaseAuth.instance.currentUser!.email!),
+          const SizedBox(
+            height: 10,
+          ),
+          InkWell(
+            onTap: () async {
+              XFile? xFile = await ImagePicker().pickImage(source: ImageSource.camera);
+              if(XFile == null) return;
+              final imagePath = xFile!.path;
+
+              var uid = FirebaseAuth.instance.currentUser!.uid;
+              final ppicRef = await FirebaseStorage.instance.ref('ppics').child('$uid.jpg');
+              await ppicRef.putFile(File(imagePath));
+
+              await FirebaseFirestore.instance.collection('kullanicilar').doc(uid).update({
+                'ppicref':ppicRef.fullPath
+              });
+              setState(() {
+                _ppicFuture = _ppicIndir();
+              });
+
+            },
+            child: FutureBuilder<Uint8List?>(
+              future: _ppicFuture,
+              builder: (context, snapshot) {
+                if(snapshot.hasData && snapshot.data !=null){
+                  final pickInMemory = snapshot.data!;
+                  return  MovingAvatar(pickInMemory: pickInMemory);
+                }
+                return CircleAvatar(
+                  child: Text(initials),
+                );
+
+              }
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MovingAvatar extends StatefulWidget {
+  const MovingAvatar({
+    super.key,
+    required this.pickInMemory,
+  });
+
+  final Uint8List pickInMemory;
+
+  @override
+  State<MovingAvatar> createState() => _MovingAvatarState();
+}
+
+class _MovingAvatarState extends State<MovingAvatar>
+with SingleTickerProviderStateMixin<MovingAvatar>{
+
+  late Ticker _ticker;
+
+  double yataydaKonum=0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = createTicker((Duration elapsed) {
+      final aci = pi * elapsed.inMicroseconds / const Duration(seconds: 1).inMicroseconds;
+      setState(() {
+          yataydaKonum = sin(aci)*30 +30;
+      });
+    });
+    _ticker.start();
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+  // setState ile animasyon
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding:  EdgeInsets.only(left: yataydaKonum),
+      child: CircleAvatar(
+       backgroundImage: MemoryImage(widget.pickInMemory),
+      ),
+    );
   }
 }

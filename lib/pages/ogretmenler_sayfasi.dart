@@ -27,8 +27,15 @@ class OgretmenlerSayfasi extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(
                       vertical: 20,
                     ),
-                    child: Text(
-                        "${ogretmenlerRepository.ogretmenler.length} ogretmen"),
+                    child: Hero(
+                      tag: 'ogretmen',
+                      child: Material(
+                        child: Container(
+                            padding: const EdgeInsets.all(8.0),
+                            color: Colors.grey.shade300,
+                            child: Text('${ogretmenlerRepository.ogretmenler.length} öğretmen')),
+                      ),
+                    ),
                   ),
                 ),
                 const Align(
