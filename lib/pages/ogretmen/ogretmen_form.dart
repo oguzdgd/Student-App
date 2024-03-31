@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ogrenci_app/services/data_service.dart';
 
@@ -12,7 +13,15 @@ class OgretmenForm extends ConsumerStatefulWidget {
   _OgretmenFormState createState() => _OgretmenFormState();
 }
 
-class _OgretmenFormState extends ConsumerState<OgretmenForm> {
+class _OgretmenFormState extends ConsumerState<OgretmenForm>
+with SingleTickerProviderStateMixin{
+  
+  late final AnimationController controller = AnimationController(vsync: this);
+  final  alignmentTween = Tween<AlignmentGeometry>(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight
+  );
+
   final Map<String, dynamic> girilen = {};
   final _formKey = GlobalKey<FormState>();
 
@@ -24,11 +33,15 @@ class _OgretmenFormState extends ConsumerState<OgretmenForm> {
       body: SafeArea(
         child: Form(
           key: _formKey,
-          child: Padding(
+          child:  Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                ScaleTransition(
+                    scale: controller,
+                    child: const Icon(Icons.person,size: 200,),
+                ),
                 TextFormField(
                   decoration: const InputDecoration(
                     label: Text("Ad"),
@@ -57,10 +70,11 @@ class _OgretmenFormState extends ConsumerState<OgretmenForm> {
                 ),
                 TextFormField(
                   decoration: const InputDecoration(
-                    label: Text("Yaş"),
+                    label: Text
+                      ("Yaş"),
                   ),
                   validator: (value) {
-                    if (value?.isEmpty == true || value == null) {
+                    if (value?.isNotEmpty != true || value == null) {
                       return "Yaş girmeniz gerekli!";
                     }
                     if (int.tryParse(value) == null) {
@@ -69,6 +83,18 @@ class _OgretmenFormState extends ConsumerState<OgretmenForm> {
                   },
                   onSaved: (newValue) {
                     girilen["yas"] = int.parse(newValue!);
+                  },
+                  keyboardType: TextInputType.number,
+                  // hatayı böyle önleyebildim yoksa ınvalid number hatası veriyordu
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (String value) {
+                    if (value.isNotEmpty && int.tryParse(value) != null) {
+                      final v = double.parse(value);
+                      controller.animateTo(
+                        v / 100,
+                        duration: const Duration(seconds: 1),
+                      );
+                    }
                   },
                 ),
                 DropdownButtonFormField(
@@ -94,17 +120,22 @@ class _OgretmenFormState extends ConsumerState<OgretmenForm> {
                     }
                   },
                 ),
-                isSaving ? const CircularProgressIndicator() : ElevatedButton(
-                    onPressed: () {
-                      final formState = _formKey.currentState;
-                      if(formState == null) return;
-                      if(formState.validate() == true ){
-                        formState.save();
-                        print(girilen);
-                      }
-                      _kaydet();
-                    },
-                    child:  const Text("Kaydet"))
+                isSaving 
+                    ? const CircularProgressIndicator() 
+                    : AlignTransition(
+                      alignment: alignmentTween.animate(controller),
+                      child: ElevatedButton(
+                      onPressed: () {
+                        final formState = _formKey.currentState;
+                        if(formState == null) return;
+                        if(formState.validate() == true ){
+                          formState.save();
+                          print(girilen);
+                        }
+                        _kaydet();
+                      },
+                      child:  const Text("Kaydet")),
+                    )
               ],
             ),
           ),

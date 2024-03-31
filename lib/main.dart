@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
 import 'package:ogrenci_app/pages/mesajlar_sayfasi.dart';
 import 'package:ogrenci_app/pages/ogrenciler_sayfasi.dart';
 import 'package:ogrenci_app/pages/ogretmenler_sayfasi.dart';
@@ -18,6 +19,7 @@ import 'package:ogrenci_app/repository/mesajlar_repository.dart';
 import 'package:ogrenci_app/repository/ogrenciler_repository.dart';
 import 'package:ogrenci_app/repository/ogretmenler_repository.dart';
 import 'package:ogrenci_app/utilities/google_sign_in.dart';
+import 'package:rive/rive.dart';
 
 import 'firebase_options.dart';
 
@@ -125,6 +127,16 @@ class AnaSayfa extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+             SizedBox(
+              height: 200,
+              width: 200,
+              child:Lottie.asset('animations/lottie.json'),
+            ),
+            const SizedBox(
+              height: 200,
+              width: 200,
+              child: RiveAnimation.asset("animations/new_file.riv"),
+            ),
             TextButton(
               child: Text('${ref.watch(yeniMesajSayisiProvider)} yeni mesaj'),
               onPressed: () {
@@ -278,7 +290,7 @@ class _UserHeaderState extends State<UserHeader> {
               final imagePath = xFile!.path;
 
               var uid = FirebaseAuth.instance.currentUser!.uid;
-              final ppicRef = await FirebaseStorage.instance.ref('ppics').child('$uid.jpg');
+              final ppicRef =  await FirebaseStorage.instance.ref('ppics').child('$uid.jpg');
               await ppicRef.putFile(File(imagePath));
 
               await FirebaseFirestore.instance.collection('kullanicilar').doc(uid).update({
