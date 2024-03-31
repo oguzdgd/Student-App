@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "236169692445",
+    "project_id": "flutter-student-app-6bb9e",
+    "storage_bucket": "flutter-student-app-6bb9e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:236169692445:android:44f43c47e5156b8f484df4",
+        "android_client_info": {
+          "package_name": "com.example.ogrenci_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "236169692445-lnk2cogtqedn95ssuk4hkcjkl9984dju.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ogrenci_app",
+            "certificate_hash": "a31ef7d1589028de3ed96c2bb248bd8a67583182"
+          }
+        },
+        {
+          "client_id": "236169692445-5mm7ivt5ni795fc3qej6l7g0bp3d6n5o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7c_m2yfuv6pLPvULytW2P_Y_fH-YQPXI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "236169692445-5mm7ivt5ni795fc3qej6l7g0bp3d6n5o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "236169692445-mfrd7a62s4riejq76pm8113ne8552qtm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ogrenciApp.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
