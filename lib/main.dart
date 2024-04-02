@@ -68,6 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
     setState(() {
       isFirebaseInitialized = true;
     });
+    anaSayfayaGit();
     if (FirebaseAuth.instance.currentUser != null) {
       anaSayfayaGit();
     }
@@ -127,6 +128,7 @@ class AnaSayfa extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            //to integration test comment these animations
              SizedBox(
               height: 200,
               width: 200,

@@ -68,6 +68,8 @@ class OgrenciSatiri extends ConsumerWidget {
         onPressed: () {
             ref.read(ogrencilerProvider).sev(ogrenci, !seviyorMuyum );
         },
+        // integration  test için bu yorum satırını kullanın.
+        // icon: seviyorMuyum ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border),
           //implicit Animasyon örneği
         icon:AnimatedCrossFade(
           firstChild: const Icon(Icons.favorite),
